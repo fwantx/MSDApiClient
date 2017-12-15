@@ -5,7 +5,7 @@ require 'json'
 
 class ApiClient
 
-  HOST = "http://animal-tracking-app.herokuapp.com:80"
+  HOST = "https://animal-tracking-app.herokuapp.com/api"
 
   def auth_request
     uri = URI.parse("http://localhost:8000/")
@@ -55,5 +55,64 @@ class ApiClient
     return response
   end
 
+
+  def base_post(path, data_str)
+    uri = URI.parse(HOST+path)
+    http = Net::HTTP.new(uri.host, uri.port)
+    request = Net::HTTP::Post.new(uri)
+    request.body = data_str
+    request["content-type"] = "application/json"
+    return Net::HTTP.start(uri.hostname, uri.port, :use_ssl => true) do |http|
+      http.request(request)
+    end    
+  end
+
+  def register_user(value)
+    return base_post(
+      "/user/register",
+      '{
+        "id": "' + value + '",
+        "username": "' + value + '",
+        "firstName": "' + value + '",
+        "lastName": "' + value + '",
+        "email": "' + value + '",
+        "password": "' + value + '",
+        "phoneNumber": "' + value + '",
+        "organization": "' + value + '",
+        "role": "Admin"
+      }')
+  end
+
+  def login_user(value)
+    return base_post(
+      '/user/login', 
+      '{
+        "username": "' + value + '",
+        "password": "' + value + '"
+      }')
+  end
+
+  def create_org(value, token)
+    return base_post(
+      '/organization/?AuthToken=' + token, 
+      '{
+        "name": "FineNine",
+        "type": "Dog Shelter",
+        "address": "' + value + '",
+        "member": [
+          12113,
+          12112,
+          12114
+        ],
+        "capacity": 20,
+        "available_space": 10,
+        "pets": [
+          3,
+          2,
+          4
+        ]
+      }'
+    )
+  end 
 
 end
